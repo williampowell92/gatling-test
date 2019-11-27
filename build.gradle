@@ -1,0 +1,26 @@
+plugins {
+    id 'java'
+    id 'com.github.lkishalmi.gatling' version '3.2.9'
+    id 'scala'
+}
+
+group 'com.will'
+version '1.0-SNAPSHOT'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+gatling {
+    includeMainOutput = false
+    includeTestOutput = false
+    logLevel = 'INFO'
+}
+
+dependencies {
+    gatlingCompile group: 'org.scala-lang', name: 'scala-library', version: '2.12.10'
+    gatlingCompile group: 'io.gatling', name: 'gatling-core', version: '3.2.1'
+    gatlingCompile group: 'io.gatling', name: 'gatling-http', version: '3.2.1'
+}
