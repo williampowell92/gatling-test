@@ -16,20 +16,23 @@ class MySimulation extends Simulation {
     .baseUrl(baseUrl)
     .contentTypeHeader("application/json")
 
-  val TPNBList: List[String] = readFile(basePath + "resources/tpnbs.csv").drop(1)
-  val requestFeeder: BatchableFeederBuilder[String]#F = separatedValues("requests.csv", '|').batch.queue
-  val TPNCList: List[String] = readFile(basePath + "resources/tpncs.csv").drop(1)
+//  val TPNBList: List[String] = readFile(basePath + "resources/tpnbs.csv").drop(1)
+  val requestFeeder: BatchableFeederBuilder[String] = separatedValues("requests.csv", '|').batch.circular
+  val TPNBFeeder = separatedValues("tpnbs100.csv", '|').batch.circular
+  val TPNCFeeder = separatedValues("tpncs100.csv", '|').batch.circular
+//  val TPNCList: List[String] = readFile(basePath + "resources/tpncs.csv").drop(1)
 
   val scn = scenario("PESimulation")
     .feed(requestFeeder)
+    .feed(TPNBFeeder)
+    .feed(TPNCFeeder)
     .exec { session =>
-      val url = session("url").validate[String].toString
-      System.out.println(url)
-
-      if (isTPNCRequest(url)) {
-        session.set("body", getRandomValues(TPNCList, productsPerRequest()).mkString(","))
-      } else {
-        session.set("body", getRandomValues(TPNBList, productsPerRequest()).mkString(","))
+      session("url").validate[String].map { url =>
+        if (isTPNCRequest(url)) {
+          session.set("body", session("tpnc").as[String])
+        } else {
+          session.set("body", session("tpnb").as[String])
+        }
       }
     }
     .exec(http("Request")
@@ -78,5 +81,5 @@ class MySimulation extends Simulation {
     }
   }
 
-  private def isTPNCRequest(url: String): Boolean = url contains "identifierType=TPNC"
+  private def isTPNCRequest(url: String): Boolean = url contains "/tpnc?"
 }
