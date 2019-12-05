@@ -1,0 +1,26 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: ess-loadtest-will-test
+spec:
+  completions: 1
+  parallelism: 1
+  template:
+    metadata:
+      labels:
+        component: ess-loadtest-will-test
+    spec:
+      imagePullSecrets:
+        - name: ecr-registry-key
+      restartPolicy: Never
+      containers:
+        - name: ess-loadtest-will-test
+          image: 756427081490.dkr.ecr.eu-west-1.amazonaws.com/essearch/will-load-test:latest
+          imagePullPolicy: Always
+          env:
+            - name: JAVA_OPTS
+              value: "-Durl=https://ppe4.search-ess.com -Dpath=/opt/gatling/user-files/ -Dtps=800 -Xms1800m -Xmx2400m"
+          resources:
+            requests:
+              cpu: "3" # Optimised for 800 TPS on PE
+              memory: "3Gi" # Optimised for 800 TPS on PE
