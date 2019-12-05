@@ -16,11 +16,9 @@ class MySimulation extends Simulation {
     .baseUrl(baseUrl)
     .contentTypeHeader("application/json")
 
-//  val TPNBList: List[String] = readFile(basePath + "resources/tpnbs.csv").drop(1)
   val requestFeeder: BatchableFeederBuilder[String] = separatedValues("requests.csv", '|').batch.circular
-  val TPNBFeeder = separatedValues("tpnbs100.csv", '|').batch.circular
-  val TPNCFeeder = separatedValues("tpncs100.csv", '|').batch.circular
-//  val TPNCList: List[String] = readFile(basePath + "resources/tpncs.csv").drop(1)
+  val TPNBFeeder = separatedValues("tpnbs100.csv.zip", '|').unzip.batch.circular
+  val TPNCFeeder = separatedValues("tpncs100.csv.zip", '|').unzip.batch.circular
 
   val scn = scenario("PESimulation")
     .feed(requestFeeder)
